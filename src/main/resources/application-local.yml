@@ -1,0 +1,31 @@
+server:
+ port: 8089
+ context-path: /workflow
+spring:
+  datasource:
+#    url: jdbc:mysql://192.168.1.51:3306/platform?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:3306/platform?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  activiti:
+    mail-server-host: smtp.nonobank.com
+    mail-server-password: maiziJF2017
+    mail-server-use-ssl: false
+    mail-server-user-name: qc-automation
+    mail-server-default-from: qc-automation@nonobank.com
+    mail-server-port: 25
+  redis:
+#    host: 192.168.1.46
+    host: 127.0.0.1
+    port: 6379
+    timeout: 20000
+  session:
+    store-type: redis
+ignore:
+  urlPath:
+  ip: 127.0.0.1
