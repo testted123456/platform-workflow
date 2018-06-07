@@ -1,18 +1,19 @@
 package com.nonobank.workflow.controller;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import com.nonobank.workflow.entity.RequrimentTask;
 import com.nonobank.workflow.entity.TaskVariable;
+import com.nonobank.workflow.utils.RequestUtil;
 import org.activiti.engine.HistoryService;
+import org.activiti.engine.IdentityService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.identity.User;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,10 @@ public class RequrimentController {
 	
 	@Autowired
 	private HistoryService historyService;
+
+	@Autowired
+	private IdentityService identityService;
+
 
 	@PostMapping(value="add")
 	@ResponseBody
@@ -386,6 +391,47 @@ public class RequrimentController {
 	public Result submitOnline(@RequestBody JSONObject reqJson){
 		return ResultUtil.success(null);
 	}
+
+	@PostMapping(value="addComment")
+	@ResponseBody
+	public Result addComment(@RequestBody JSONObject reqJson){
+		User user = identityService.createUserQuery().userId(UserUtil.getUser()).singleResult();
+		if (user == null) {
+			user = identityService.newUser(UserUtil.getUser());
+			identityService.saveUser(user);
+		}
+		//Passes the authenticated user id for this particular thread
+		identityService.setAuthenticatedUserId(user.getId());
+
+		String requirementId = RequestUtil.getString(reqJson, "requirementId", true);
+		String comment = RequestUtil.getString(reqJson, "comment", true);
+
+		Requriment req  = requrimentService.getById(Integer.valueOf(requirementId));
+		String processId = req.getTaskId();
+		Task task = taskService.createTaskQuery().processInstanceId(processId).singleResult();
+		taskService.addComment(task.getId(), processId, comment);
+		return ResultUtil.success();
+	}
+
+	@GetMapping(value="getCommentList")
+	@ResponseBody
+	public Result getCommentList(String requirementId){
+		Requriment req  = requrimentService.getById(Integer.valueOf(requirementId));
+		String processId = req.getTaskId();
+		List<Comment> commentList = taskService.getProcessInstanceComments(processId);
+		List<?> list = commentList.stream().map( c -> {
+				HashMap<String, Object> map = new HashMap<>();
+				map.put("id", c.getId());
+				map.put("time", c.getTime());
+				map.put("user", c.getUserId());
+				map.put("message", c.getFullMessage());
+				return map;
+		}).collect(Collectors.toList());
+
+		return ResultUtil.success(list);
+	}
+
+
 
 
 	/**
