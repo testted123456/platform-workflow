@@ -1,19 +1,22 @@
 package com.nonobank.workflow.controller;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.nonobank.workflow.component.exception.WorkflowException;
+import com.nonobank.workflow.entity.Comment;
 import com.nonobank.workflow.entity.RequrimentTask;
 import com.nonobank.workflow.entity.TaskVariable;
+import com.nonobank.workflow.service.CommentService;
+import com.nonobank.workflow.utils.CommonUtil;
 import com.nonobank.workflow.utils.RequestUtil;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricActivityInstance;
-import org.activiti.engine.identity.User;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,9 @@ public class RequrimentController {
 
 	@Autowired
 	RequrimentService requrimentService;
+
+	@Autowired
+	CommentService commentService;
 	
 	@Autowired
 	ProcessDefinitionFactory processDefinitionFactory;
@@ -392,9 +398,10 @@ public class RequrimentController {
 		return ResultUtil.success(null);
 	}
 
-	@PostMapping(value="addComment")
+	/*
+	@PostMapping(value="addActivitiComment")
 	@ResponseBody
-	public Result addComment(@RequestBody JSONObject reqJson){
+	public Result addActivitiComment(@RequestBody JSONObject reqJson){
 		User user = identityService.createUserQuery().userId(UserUtil.getUser()).singleResult();
 		if (user == null) {
 			user = identityService.newUser(UserUtil.getUser());
@@ -413,9 +420,9 @@ public class RequrimentController {
 		return ResultUtil.success();
 	}
 
-	@GetMapping(value="getCommentList")
+	@GetMapping(value="getActivitiCommentList")
 	@ResponseBody
-	public Result getCommentList(String requirementId){
+	public Result getActivitiCommentList(String requirementId){
 		Requriment req  = requrimentService.getById(Integer.valueOf(requirementId));
 		String processId = req.getTaskId();
 		List<Comment> commentList = taskService.getProcessInstanceComments(processId);
@@ -430,7 +437,50 @@ public class RequrimentController {
 
 		return ResultUtil.success(list);
 	}
+	*/
 
+
+	@PostMapping(value="addComment")
+	@ResponseBody
+	public Result addComment(@RequestBody JSONObject reqJson){
+		String requirementId = RequestUtil.getString(reqJson, "requirementId", true);
+		String comment = RequestUtil.getString(reqJson, "comment", true);
+
+		Comment com = new Comment();
+		Requriment req = requrimentService.getById(Integer.valueOf(requirementId));
+		com.setRequriment(req);
+		com.setTime(LocalDateTime.now());
+		com.setUser(UserUtil.getUser());
+		com.setComment(comment);
+		commentService.save(com);
+		return ResultUtil.success("添加评论成功");
+	}
+
+
+	@GetMapping(value="getCommentList")
+	@ResponseBody
+	public Result getReqCommentList(String requirementId){
+
+		if(requirementId != null){
+			if (requirementId.isEmpty()){
+				throw new WorkflowException(ResultCode.VALIDATION_ERROR.getCode(), String.format("请求提供参数%s为空", "requirementId"));
+			}
+		}else{
+			throw new WorkflowException(ResultCode.VALIDATION_ERROR.getCode(), String.format("请求未提供参数%s", "requirementId"));
+		}
+
+		List<Comment> commentList = commentService.findByRequirementId(Integer.valueOf(requirementId));
+		List list = commentList.stream().map( c -> {
+			Map map = new HashMap();
+			map.put("id", c.getId());
+			map.put("user", c.getUser());
+			map.put("time", CommonUtil.Time2String(c.getTime()));
+			map.put("comment", c.getComment());
+			return map;
+		}).collect(Collectors.toList());
+
+		return ResultUtil.success(list);
+	}
 
 
 
