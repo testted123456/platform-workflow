@@ -449,7 +449,7 @@ public class RequrimentController {
 		Comment com = new Comment();
 		Requriment req = requrimentService.getById(Integer.valueOf(requirementId));
 		com.setRequriment(req);
-		com.setTime(LocalDateTime.now());
+		//com.setTime(LocalDateTime.now());
 		com.setUser(UserUtil.getUser());
 		com.setComment(comment);
 		commentService.save(com);
@@ -474,7 +474,7 @@ public class RequrimentController {
 			Map map = new HashMap();
 			map.put("id", c.getId());
 			map.put("user", c.getUser());
-			map.put("time", CommonUtil.Time2String(c.getTime()));
+			//map.put("time", CommonUtil.Time2String(c.getTime()));
 			map.put("comment", c.getComment());
 			return map;
 		}).collect(Collectors.toList());
@@ -482,6 +482,12 @@ public class RequrimentController {
 		return ResultUtil.success(list);
 	}
 
+	@PostMapping(value="updateComment")
+	@ResponseBody
+	public Result updateComment(@RequestBody Comment comment){
+		commentService.save(comment);
+		return ResultUtil.success("更新评论成功");
+	}
 
 
 	/**

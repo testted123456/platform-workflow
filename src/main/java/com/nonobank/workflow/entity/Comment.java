@@ -2,10 +2,9 @@ package com.nonobank.workflow.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 public class Comment {
@@ -23,7 +22,6 @@ public class Comment {
     @Column(nullable=false, columnDefinition="varchar(255) COMMENT '用户'")
     String user;
 
-    @NotNull(message="时间不能为空")
     @Column(nullable=true, columnDefinition="datetime")
     LocalDateTime time;
 
@@ -47,7 +45,6 @@ public class Comment {
         this.requriment = requriment;
     }
 
-
     public String getUser() {
         return user;
     }
@@ -56,6 +53,7 @@ public class Comment {
         this.user = user;
     }
 
+    /*
     public LocalDateTime getTime() {
         return time;
     }
@@ -63,7 +61,22 @@ public class Comment {
     public void setTime(LocalDateTime time) {
         this.time = time;
     }
+    */
 
+    public String getTime() {
+
+        if(null != this.time){
+            return this.time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }else{
+            return null;
+        }
+    }
+
+    public void setTime(String time){
+        if(null != time){
+            this.time = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+    }
 
     public String getComment() {
         return comment;
