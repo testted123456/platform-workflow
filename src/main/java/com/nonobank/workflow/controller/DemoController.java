@@ -55,11 +55,12 @@ public class DemoController {
 	        Task task=taskService.createTaskQuery().processInstanceId(processId)
 //	        		.taskCandidateUser("wanger")
 	        		.singleResult();  
-	        
+	       
 	        taskService.setVariable(task.getId(), "请假人", "zhangsan");
 	        System.out.println("第一次执行前，任务名称："+task.getName());  
 	        System.out.println("第一次执行前，assignee：" + task.getAssignee());
 	        System.out.println("第一次执行前，请假人："+ taskService.getVariable(task.getId(), "请假人")); 
+	        
 	        Map<String, Object> variables = new HashMap<String, Object>(); 
 	        variables.put("msg", "important");
 	        taskService.complete(task.getId(), variables);  

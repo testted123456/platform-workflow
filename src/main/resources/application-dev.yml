@@ -19,6 +19,7 @@ spring:
     mail-server-user-name: qc-automation
     mail-server-default-from: qc-automation@nonobank.com
     mail-server-port: 25
+    history-level: full
   redis:
     host: 192.168.1.46
 #    host: 127.0.0.1

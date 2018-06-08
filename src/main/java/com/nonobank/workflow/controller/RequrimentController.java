@@ -6,10 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.activiti.engine.HistoryService;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.impl.identity.Authentication;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -24,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.nonobank.workflow.component.ProcessDefinitionFactory;
 import com.nonobank.workflow.component.result.Result;
 import com.nonobank.workflow.component.result.ResultCode;
@@ -53,6 +58,9 @@ public class RequrimentController {
 	
 	 @Autowired
 	 private HistoryService historyService;
+	 
+	 @Autowired
+	 IdentityService identityService;
 	
 	@PostMapping(value="add")
 	@ResponseBody
@@ -65,9 +73,12 @@ public class RequrimentController {
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("userId", userName);
 		variables.put("comment", comment);
+	
 		ProcessInstance pi =
     			runtimeService.startProcessInstanceById(pd.getId(), variables);
 		Task task = taskService.createTaskQuery().processInstanceId(pi.getId()).singleResult();
+		identityService.newUser("");
+		Authentication.setAuthenticatedUserId("");
 		
 //		taskService.setVariablesLocal(task.getId(), variables);
 //		taskService.setVariables(task.getId(), variables);
@@ -100,6 +111,7 @@ public class RequrimentController {
 		String taskId = requriment.getTaskId();
 		Task task = taskService.createTaskQuery().processInstanceId(taskId).singleResult();
 //		taskId(taskId).singleResult();
+		
 		System.out.println(task.getName());
 		return ResultUtil.success(requriment);
 	}
