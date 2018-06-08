@@ -2,6 +2,7 @@ package com.nonobank.workflow.controller;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import com.nonobank.workflow.component.exception.WorkflowException;
@@ -449,7 +450,7 @@ public class RequrimentController {
 		Comment com = new Comment();
 		Requriment req = requrimentService.getById(Integer.valueOf(requirementId));
 		com.setRequriment(req);
-		//com.setTime(LocalDateTime.now());
+		com.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern(CommonUtil.DATETIME_PATTERN)));
 		com.setUser(UserUtil.getUser());
 		com.setComment(comment);
 		commentService.save(com);
@@ -474,7 +475,7 @@ public class RequrimentController {
 			Map map = new HashMap();
 			map.put("id", c.getId());
 			map.put("user", c.getUser());
-			//map.put("time", CommonUtil.Time2String(c.getTime()));
+			map.put("time", c.getTime());
 			map.put("comment", c.getComment());
 			return map;
 		}).collect(Collectors.toList());
@@ -484,8 +485,24 @@ public class RequrimentController {
 
 	@PostMapping(value="updateComment")
 	@ResponseBody
-	public Result updateComment(@RequestBody Comment comment){
-		commentService.save(comment);
+	public Result updateComment(@RequestBody JSONObject reqJson){
+
+		String id = RequestUtil.getString(reqJson,"id", true);
+		String requrimentId = RequestUtil.getString(reqJson,"requrimentId", true);
+		String comment = RequestUtil.getString(reqJson,"comment", true);
+		String timeStr = RequestUtil.getString(reqJson,"time", true);
+		String user = RequestUtil.getString(reqJson,"user", true);
+
+		Requriment req = requrimentService.getById(Integer.valueOf(requrimentId));
+
+		Comment com = new Comment();
+		com.setId(Integer.valueOf(id));
+		com.setUser(user);
+		com.setTime(timeStr);
+		com.setComment(comment);
+		com.setRequriment(req);
+		commentService.save(com);
+
 		return ResultUtil.success("更新评论成功");
 	}
 
