@@ -444,11 +444,11 @@ public class RequrimentController {
 	@PostMapping(value="addComment")
 	@ResponseBody
 	public Result addComment(@RequestBody JSONObject reqJson){
-		String requirementId = RequestUtil.getString(reqJson, "requirementId", true);
+		String requrimentId = RequestUtil.getString(reqJson, "requrimentId", true);
 		String comment = RequestUtil.getString(reqJson, "comment", true);
 
 		Comment com = new Comment();
-		Requriment req = requrimentService.getById(Integer.valueOf(requirementId));
+		Requriment req = requrimentService.getById(Integer.valueOf(requrimentId));
 		com.setRequriment(req);
 		com.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern(CommonUtil.DATETIME_PATTERN)));
 		com.setUser(UserUtil.getUser());
@@ -460,17 +460,17 @@ public class RequrimentController {
 
 	@GetMapping(value="getCommentList")
 	@ResponseBody
-	public Result getReqCommentList(String requirementId){
+	public Result getReqCommentList(String requrimentId){
 
-		if(requirementId != null){
-			if (requirementId.isEmpty()){
+		if(requrimentId != null){
+			if (requrimentId.isEmpty()){
 				throw new WorkflowException(ResultCode.VALIDATION_ERROR.getCode(), String.format("请求提供参数%s为空", "requirementId"));
 			}
 		}else{
 			throw new WorkflowException(ResultCode.VALIDATION_ERROR.getCode(), String.format("请求未提供参数%s", "requirementId"));
 		}
 
-		List<Comment> commentList = commentService.findByRequirementId(Integer.valueOf(requirementId));
+		List<Comment> commentList = commentService.findByRequirementId(Integer.valueOf(requrimentId));
 		List list = commentList.stream().map( c -> {
 			Map map = new HashMap();
 			map.put("id", c.getId());
