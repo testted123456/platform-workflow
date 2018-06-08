@@ -1,83 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="requriment" name="Requriment" isExecutable="true">
-    <userTask id="usertask1" name="处理中" activiti:assignee="#{userId}"></userTask>
-    <userTask id="usertask2" name="待评审"></userTask>
-    <userTask id="usertask3" name="评审中"></userTask>
-    <userTask id="usertask4" name="待排期"></userTask>
-    <userTask id="usertask5" name="排期中"></userTask>
-    <userTask id="usertask6" name="开发中"></userTask>
-    <userTask id="usertask7" name="stb测试"></userTask>
-    <userTask id="usertask8" name="sit测试"></userTask>
-    <sequenceFlow id="flow2" sourceRef="usertask1" targetRef="usertask2"></sequenceFlow>
-    <sequenceFlow id="flow3" sourceRef="usertask2" targetRef="usertask3"></sequenceFlow>
-    <sequenceFlow id="flow4" sourceRef="usertask3" targetRef="usertask4"></sequenceFlow>
-    <sequenceFlow id="flow5" sourceRef="usertask4" targetRef="usertask5"></sequenceFlow>
-    <sequenceFlow id="flow6" sourceRef="usertask5" targetRef="usertask6"></sequenceFlow>
-    <sequenceFlow id="flow7" sourceRef="usertask6" targetRef="usertask7"></sequenceFlow>
-    <sequenceFlow id="flow8" sourceRef="usertask7" targetRef="usertask8"></sequenceFlow>
+    <userTask id="handling" name="处理中" activiti:assignee="#{userId}"></userTask>
+    <userTask id="pendingReview" name="待评审"></userTask>
+    <userTask id="reviewing" name="评审中"></userTask>
+    <userTask id="pendingSchedule" name="待排期"></userTask>
+    <userTask id="scheduling" name="排期中"></userTask>
+    <userTask id="developing" name="开发中"></userTask>
+    <userTask id="stbTesting" name="stb测试"></userTask>
+    <userTask id="sitTesting" name="sit测试"></userTask>
+    <sequenceFlow id="flow2" sourceRef="handling" targetRef="pendingReview"></sequenceFlow>
+    <sequenceFlow id="flow3" sourceRef="pendingReview" targetRef="reviewing"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="reviewing" targetRef="pendingSchedule"></sequenceFlow>
+    <sequenceFlow id="flow5" sourceRef="pendingSchedule" targetRef="scheduling"></sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="scheduling" targetRef="developing"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="developing" targetRef="stbTesting"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="stbTesting" targetRef="sitTesting"></sequenceFlow>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <sequenceFlow id="flow10" sourceRef="startevent1" targetRef="usertask1"></sequenceFlow>
-    <userTask id="usertask9" name="pre测试"></userTask>
-    <userTask id="usertask10" name="产品验收"></userTask>
-    <userTask id="usertask11" name="业务验收"></userTask>
-    <sequenceFlow id="flow11" sourceRef="usertask8" targetRef="usertask9"></sequenceFlow>
-    <sequenceFlow id="flow12" sourceRef="usertask9" targetRef="usertask10"></sequenceFlow>
-    <sequenceFlow id="flow13" sourceRef="usertask10" targetRef="usertask11">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${result=true}]]></conditionExpression>
+    <sequenceFlow id="flow10" sourceRef="startevent1" targetRef="handling"></sequenceFlow>
+    <userTask id="preTesting" name="pre测试"></userTask>
+    <userTask id="productAccept" name="产品验收"></userTask>
+    <userTask id="businessAccept" name="业务验收"></userTask>
+    <sequenceFlow id="flow11" sourceRef="sitTesting" targetRef="preTesting"></sequenceFlow>
+    <sequenceFlow id="flow12" sourceRef="preTesting" targetRef="productAccept"></sequenceFlow>
+    <sequenceFlow id="flow13" sourceRef="productAccept" targetRef="businessAccept">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${result==true}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="usertask12" name="已上线"></userTask>
-    <sequenceFlow id="flow24" sourceRef="usertask11" targetRef="usertask12">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${result=true}]]></conditionExpression>
+    <userTask id="pendingOnline" name="待上线"></userTask>
+    <sequenceFlow id="flow24" sourceRef="businessAccept" targetRef="pendingOnline">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${result==true}]]></conditionExpression>
     </sequenceFlow>
     <endEvent id="endevent1" name="End"></endEvent>
-    <sequenceFlow id="flow25" sourceRef="usertask12" targetRef="endevent1"></sequenceFlow>
-    <sequenceFlow id="flow26" sourceRef="usertask10" targetRef="usertask6">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${result=false}]]></conditionExpression>
+    <sequenceFlow id="flow25" sourceRef="pendingOnline" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow26" sourceRef="productAccept" targetRef="developing">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${result==false}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flow27" sourceRef="usertask11" targetRef="usertask6">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${result=false}]]></conditionExpression>
+    <sequenceFlow id="flow27" sourceRef="businessAccept" targetRef="developing">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${result==false}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_requriment">
     <bpmndi:BPMNPlane bpmnElement="requriment" id="BPMNPlane_requriment">
-      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+      <bpmndi:BPMNShape bpmnElement="handling" id="BPMNShape_handling">
         <omgdc:Bounds height="55.0" width="105.0" x="60.0" y="114.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask2" id="BPMNShape_usertask2">
+      <bpmndi:BPMNShape bpmnElement="pendingReview" id="BPMNShape_pendingReview">
         <omgdc:Bounds height="56.0" width="105.0" x="240.0" y="114.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask3" id="BPMNShape_usertask3">
+      <bpmndi:BPMNShape bpmnElement="reviewing" id="BPMNShape_reviewing">
         <omgdc:Bounds height="55.0" width="105.0" x="420.0" y="114.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask4" id="BPMNShape_usertask4">
+      <bpmndi:BPMNShape bpmnElement="pendingSchedule" id="BPMNShape_pendingSchedule">
         <omgdc:Bounds height="55.0" width="105.0" x="600.0" y="114.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask5" id="BPMNShape_usertask5">
+      <bpmndi:BPMNShape bpmnElement="scheduling" id="BPMNShape_scheduling">
         <omgdc:Bounds height="55.0" width="105.0" x="788.0" y="114.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask6" id="BPMNShape_usertask6">
+      <bpmndi:BPMNShape bpmnElement="developing" id="BPMNShape_developing">
         <omgdc:Bounds height="55.0" width="105.0" x="788.0" y="240.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask7" id="BPMNShape_usertask7">
+      <bpmndi:BPMNShape bpmnElement="stbTesting" id="BPMNShape_stbTesting">
         <omgdc:Bounds height="55.0" width="105.0" x="788.0" y="367.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask8" id="BPMNShape_usertask8">
+      <bpmndi:BPMNShape bpmnElement="sitTesting" id="BPMNShape_sitTesting">
         <omgdc:Bounds height="55.0" width="105.0" x="610.0" y="367.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="10.0" y="124.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask9" id="BPMNShape_usertask9">
+      <bpmndi:BPMNShape bpmnElement="preTesting" id="BPMNShape_preTesting">
         <omgdc:Bounds height="55.0" width="105.0" x="420.0" y="367.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask10" id="BPMNShape_usertask10">
+      <bpmndi:BPMNShape bpmnElement="productAccept" id="BPMNShape_productAccept">
         <omgdc:Bounds height="55.0" width="105.0" x="230.0" y="367.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask11" id="BPMNShape_usertask11">
+      <bpmndi:BPMNShape bpmnElement="businessAccept" id="BPMNShape_businessAccept">
         <omgdc:Bounds height="55.0" width="105.0" x="60.0" y="367.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="usertask12" id="BPMNShape_usertask12">
+      <bpmndi:BPMNShape bpmnElement="pendingOnline" id="BPMNShape_pendingOnline">
         <omgdc:Bounds height="55.0" width="105.0" x="60.0" y="251.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">

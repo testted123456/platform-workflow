@@ -1,10 +1,9 @@
 package com.nonobank.workflow.entity;
 
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import java.util.List;
+import javax.persistence.*;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
@@ -93,6 +92,9 @@ public class Requriment {
 	
 	@Column(nullable=false, columnDefinition="smallint(1) COMMENT '0:正常，1:暂停，2:已删除'")
 	Short optStatus;
+
+	@OneToMany(mappedBy="requriment", cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+	List<Comment> comments;
 
 	public Integer getId() {
 		return id;
